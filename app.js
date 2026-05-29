@@ -382,6 +382,20 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+})();
+
 function applyManualSize() {
   const val = parseFloat(document.getElementById('manual-size-value').value);
   const unit = document.getElementById('manual-size-unit').value;
