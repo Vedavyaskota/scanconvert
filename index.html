@@ -199,11 +199,35 @@
         </div>
       </div>
 
-      <!-- Result -->
+      <!-- Direct Price Conversion -->
+      <div id="direct-convert-card" class="hidden">
+        <div class="direct-convert-glow"></div>
+        <div class="direct-convert-content">
+          <div class="direct-convert-row">
+            <div class="direct-from">
+              <span class="direct-label">Product Price</span>
+              <span id="direct-from-price" class="direct-price"></span>
+            </div>
+            <div class="direct-equals">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/></svg>
+            </div>
+            <div class="direct-to">
+              <span class="direct-label">Converted</span>
+              <span id="direct-to-price" class="direct-price accent"></span>
+            </div>
+          </div>
+          <div class="direct-rate-line">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span id="direct-rate-text"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-Unit Result -->
       <div id="result-card" class="hidden">
         <div class="result-glow"></div>
         <div class="result-content">
-          <span class="result-label">Converted Price</span>
+          <span class="result-label">Price Per Unit</span>
           <div class="result-price-row">
             <span id="result-price" class="result-value"></span>
           </div>

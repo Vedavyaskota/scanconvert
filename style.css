@@ -613,6 +613,96 @@ header {
   flex-shrink: 0;
 }
 
+/* ---- DIRECT CONVERSION ---- */
+#direct-convert-card {
+  position: relative;
+  margin-top: 16px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: result-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.direct-convert-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.05));
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius);
+}
+
+.direct-convert-content {
+  position: relative;
+  padding: 18px 20px;
+}
+
+.direct-convert-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.direct-from, .direct-to {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.direct-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.direct-price {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.direct-price.accent {
+  background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.direct-equals {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent);
+}
+
+.direct-rate-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+}
+
+.direct-rate-line svg {
+  color: var(--text3);
+}
+
 /* ---- RESULT CARD ---- */
 #result-card {
   position: relative;

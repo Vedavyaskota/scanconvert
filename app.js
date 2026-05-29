@@ -153,6 +153,7 @@ function renderProduct() {
 
   show('product-card');
   hide('result-card');
+  hide('direct-convert-card');
   document.getElementById('price-input').value = '';
   document.getElementById('price-input').focus();
 }
@@ -160,15 +161,45 @@ function renderProduct() {
 async function convert() {
   const priceStr = document.getElementById('price-input').value;
   const price = parseFloat(priceStr);
-  if (!price || !currentProduct?.quantity) {
+  const fromCurrency = document.getElementById('currency-from').value;
+  const toCurrency = document.getElementById('currency-to').value;
+
+  if (!price) {
+    hide('direct-convert-card');
     hide('result-card');
     return;
   }
 
-  const fromCurrency = document.getElementById('currency-from').value;
-  const toCurrency = document.getElementById('currency-to').value;
-  const toUnit = document.getElementById('unit-to').value;
+  let rate = 1;
+  if (fromCurrency !== toCurrency) {
+    const rates = await fetchRates(fromCurrency);
+    if (!rates || !rates[toCurrency]) {
+      showToast('Exchange rate unavailable', true);
+      return;
+    }
+    rate = rates[toCurrency];
+  }
 
+  const fromSym = CURRENCY_SYMBOLS[fromCurrency] || fromCurrency;
+  const toSym = CURRENCY_SYMBOLS[toCurrency] || toCurrency;
+  const directConverted = price * rate;
+
+  document.getElementById('direct-from-price').textContent =
+    `${fromSym}${price.toFixed(2)}`;
+  document.getElementById('direct-to-price').textContent =
+    `${toSym}${directConverted.toFixed(2)}`;
+  document.getElementById('direct-rate-text').textContent =
+    fromCurrency === toCurrency
+      ? 'Same currency'
+      : `1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`;
+  show('direct-convert-card');
+
+  if (!currentProduct?.quantity) {
+    hide('result-card');
+    return;
+  }
+
+  const toUnit = document.getElementById('unit-to').value;
   const qty = currentProduct.quantity;
   const fromUnitInfo = UNIT_TO_BASE[qty.unit];
   const toUnitInfo = UNIT_TO_BASE[toUnit];
@@ -183,27 +214,15 @@ async function convert() {
   const pricePerBase = price / baseAmount;
   const convertedQty = toUnitInfo.factor;
   const pricePerTargetUnit = pricePerBase * convertedQty;
-
-  let rate = 1;
-  if (fromCurrency !== toCurrency) {
-    const rates = await fetchRates(fromCurrency);
-    if (!rates || !rates[toCurrency]) {
-      showToast('Exchange rate unavailable', true);
-      return;
-    }
-    rate = rates[toCurrency];
-  }
-
   const finalPrice = pricePerTargetUnit * rate;
-  const sym = CURRENCY_SYMBOLS[toCurrency] || toCurrency;
 
   document.getElementById('result-price').textContent =
-    `${sym}${finalPrice.toFixed(2)}`;
+    `${toSym}${finalPrice.toFixed(2)}`;
   document.getElementById('result-unit').textContent =
     `per ${UNIT_LABELS[toUnit] || toUnit}`;
 
   document.getElementById('bk-original').textContent =
-    `${CURRENCY_SYMBOLS[fromCurrency]}${price.toFixed(2)} / ${qty.value} ${UNIT_LABELS[qty.unit]}`;
+    `${fromSym}${price.toFixed(2)} / ${qty.value} ${UNIT_LABELS[qty.unit]}`;
   document.getElementById('bk-unit').textContent =
     `${qty.value} ${UNIT_LABELS[qty.unit]} → ${UNIT_LABELS[toUnit]}`;
   document.getElementById('bk-rate').textContent =
