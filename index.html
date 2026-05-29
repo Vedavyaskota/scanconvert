@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a1a">
+  <title>ScanConvert</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div id="app">
+    <header>
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="4" width="3" height="24" rx="1.5" fill="url(#g1)"/>
+          <rect x="7" y="4" width="2" height="24" rx="1" fill="url(#g1)"/>
+          <rect x="11" y="4" width="4" height="24" rx="1.5" fill="url(#g1)"/>
+          <rect x="17" y="4" width="2" height="24" rx="1" fill="url(#g1)"/>
+          <rect x="21" y="4" width="3" height="24" rx="1.5" fill="url(#g1)"/>
+          <rect x="26" y="4" width="4" height="24" rx="1.5" fill="url(#g1)"/>
+          <defs><linearGradient id="g1" x1="16" y1="4" x2="16" y2="28"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#6d28d9"/></linearGradient></defs>
+        </svg>
+        <div>
+          <h1>ScanConvert</h1>
+          <p class="tagline">Scan. Convert. Compare.</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Scanner Area -->
+    <section id="scanner-section" class="card">
+      <div id="scanner-container">
+        <div id="reader"></div>
+        <div id="scanner-overlay">
+          <div class="scan-line"></div>
+          <div class="scan-corners">
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+          </div>
+        </div>
+      </div>
+
+      <button id="scan-btn" class="btn-primary" onclick="toggleScanner()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span>Scan Barcode</span>
+      </button>
+
+      <div class="divider"><span>or enter manually</span></div>
+
+      <div class="manual-entry">
+        <div class="input-icon-wrap">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/>
+          </svg>
+          <input type="text" id="upc-input" placeholder="Enter UPC / EAN code" inputmode="numeric" pattern="[0-9]*">
+        </div>
+        <button id="lookup-btn" class="btn-secondary" onclick="manualLookup()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden">
+      <div class="loader">
+        <div class="loader-ring"></div>
+        <svg class="loader-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <p class="loading-text">Searching product database...</p>
+    </div>
+
+    <!-- Product Card -->
+    <section id="product-card" class="card hidden">
+      <div class="product-header">
+        <div class="product-img-wrap">
+          <img id="product-img" src="" alt="Product" onerror="this.parentElement.classList.add('no-img')">
+          <div class="img-placeholder">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <h2 id="product-name"></h2>
+          <p id="product-brand" class="brand"></p>
+          <span id="product-upc" class="upc-chip"></span>
+        </div>
+      </div>
+
+      <div class="meta-pills">
+        <div class="pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <span id="original-size"></span>
+        </div>
+        <div class="pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span id="product-category"></span>
+        </div>
+      </div>
+
+      <!-- Manual Size -->
+      <div id="manual-size-section" class="hidden">
+        <div class="manual-size-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Size not found — enter it below</span>
+        </div>
+        <div class="manual-size-row">
+          <input type="number" id="manual-size-value" placeholder="Amount" step="any" min="0" oninput="applyManualSize()">
+          <select id="manual-size-unit" onchange="applyManualSize()">
+            <optgroup label="Volume">
+              <option value="gal">Gallon</option>
+              <option value="l">Liter</option>
+              <option value="ml">mL</option>
+              <option value="qt">Quart</option>
+              <option value="pt">Pint</option>
+              <option value="fl_oz">Fl Oz</option>
+              <option value="cup">Cup</option>
+            </optgroup>
+            <optgroup label="Weight">
+              <option value="kg">Kilogram</option>
+              <option value="g">Gram</option>
+              <option value="lb">Pound</option>
+              <option value="oz">Ounce</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <!-- Conversion Controls -->
+      <div class="conversion-grid">
+        <div class="conv-block">
+          <label>Price</label>
+          <div class="input-group">
+            <select id="currency-from" onchange="convert()">
+              <option value="USD">$ USD</option>
+              <option value="INR">&#8377; INR</option>
+              <option value="EUR">&euro; EUR</option>
+              <option value="GBP">&pound; GBP</option>
+              <option value="CAD">C$ CAD</option>
+              <option value="AUD">A$ AUD</option>
+              <option value="JPY">&yen; JPY</option>
+            </select>
+            <input type="number" id="price-input" placeholder="0.00" step="0.01" min="0" oninput="convert()">
+          </div>
+        </div>
+
+        <div class="conv-arrow">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+
+        <div class="conv-block">
+          <label>Convert To</label>
+          <div class="input-group">
+            <select id="currency-to" onchange="convert()">
+              <option value="INR">&#8377; INR</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">&euro; EUR</option>
+              <option value="GBP">&pound; GBP</option>
+              <option value="CAD">C$ CAD</option>
+              <option value="AUD">A$ AUD</option>
+              <option value="JPY">&yen; JPY</option>
+            </select>
+            <select id="unit-to" onchange="convert()">
+              <optgroup label="Volume">
+                <option value="l">Liter (L)</option>
+                <option value="ml">Milliliter (mL)</option>
+                <option value="gal">Gallon (gal)</option>
+                <option value="qt">Quart (qt)</option>
+                <option value="pt">Pint (pt)</option>
+                <option value="fl_oz">Fluid Oz</option>
+                <option value="cup">Cup</option>
+              </optgroup>
+              <optgroup label="Weight">
+                <option value="kg">Kilogram (kg)</option>
+                <option value="g">Gram (g)</option>
+                <option value="lb">Pound (lb)</option>
+                <option value="oz">Ounce (oz)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="result-card" class="hidden">
+        <div class="result-glow"></div>
+        <div class="result-content">
+          <span class="result-label">Converted Price</span>
+          <div class="result-price-row">
+            <span id="result-price" class="result-value"></span>
+          </div>
+          <span id="result-unit" class="result-per"></span>
+        </div>
+        <div class="result-details">
+          <div class="rd-item">
+            <span class="rd-key">Original</span>
+            <span id="bk-original" class="rd-val"></span>
+          </div>
+          <div class="rd-item">
+            <span class="rd-key">Unit</span>
+            <span id="bk-unit" class="rd-val"></span>
+          </div>
+          <div class="rd-item">
+            <span class="rd-key">Rate</span>
+            <span id="bk-rate" class="rd-val"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section id="history-section">
+      <div class="section-header">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Recent Scans
+        </h3>
+      </div>
+      <div id="history-list"></div>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
